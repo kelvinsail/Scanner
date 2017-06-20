@@ -26,12 +26,12 @@ import com.google.zxing.Result;
 
 import java.io.IOException;
 
-import cn.yifan.zxingscanner.Constans;
-import cn.yifan.zxingscanner.InactivityTimer;
-import cn.yifan.zxingscanner.impl.CaptureActivity;
-import cn.yifan.zxingscanner.CaptureActivityHandler;
-import cn.yifan.zxingscanner.camera.CameraManager;
-import cn.yifan.zxingscanner.widget.ViewfinderView;
+import cn.yifan.scanner.Constans;
+import cn.yifan.scanner.InactivityTimer;
+import cn.yifan.scanner.impl.CaptureActivity;
+import cn.yifan.scanner.CaptureActivityHandler;
+import cn.yifan.scanner.camera.CameraManager;
+import cn.yifan.scanner.widget.ViewfinderView;
 
 /**
  * 扫描界面

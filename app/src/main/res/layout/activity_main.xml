@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
 
-    <cn.yifan.zxingscanner.widget.ViewfinderView
+    <cn.yifan.scanner.widget.ViewfinderView
         android:id="@+id/vfv_capture"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>

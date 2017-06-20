@@ -12,8 +12,8 @@ import android.view.SurfaceView;
 
 import com.google.zxing.Result;
 
-import cn.yifan.zxingscanner.impl.Capture;
-import cn.yifan.zxingscanner.widget.ViewfinderView;
+import cn.yifan.scanner.impl.Capture;
+import cn.yifan.scanner.widget.ViewfinderView;
 
 /**
  * 扫描界面
