@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <attr name="FindViewStyle" format="reference"/>
+
+    <declare-styleable name="AbstractFinderView">
+        <!-- 提示文字 -->
+        <attr name="tips_text" format="string"/>
+        <attr name="tips_text_color" format="color"/>
+        <attr name="tips_text_size" format="dimension"/>
+        <attr name="tips_text_bottom_padding" format="dimension"/>
+
+        <!-- 边框颜色 -->
+        <attr name="corner_frame_color" format="color"/>
+        <attr name="corner_frame_width" format="dimension"/>
+        <attr name="corner_frame_height" format="dimension"/>
+
+        <!-- 准线颜色 -->
+        <attr name="laser_color" format="color"/>
+        <attr name="laser_width" format="dimension"/>
+        <attr name="laser_padding" format="dimension"/>
+
+        <attr name="mask_color" format="color"/>
+        <attr name="result_color" format="color"/>
+        <attr name="result_point_color" format="color"/>
+        <attr name="scanner_alpha" format="float"/>
+    </declare-styleable>
+</resources>

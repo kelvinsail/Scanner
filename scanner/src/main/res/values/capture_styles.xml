@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+
+    <style name="FinderViewStyle">
+        <item name="tips_text_color">@color/tips_text</item>
+        <item name="tips_text_size">@dimen/tips_text_size</item>
+        <item name="tips_text_bottom_padding">@dimen/tips_text_bottom_padding</item>
+        <item name="corner_frame_width">4dp</item>
+        <item name="corner_frame_height">24dp</item>
+        <item name="laser_color">@color/viewfinder_laser</item>
+        <item name="laser_width">2dp</item>
+        <item name="laser_padding">24dp</item>
+        <item name="mask_color">@color/viewfinder_mask</item>
+        <item name="result_color">@color/result_view</item>
+        <item name="result_point_color">@color/possible_result_points</item>
+        <item name="scanner_alpha">0</item>
+    </style>
+</resources>
