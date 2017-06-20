@@ -2,6 +2,23 @@
 
 第一个开源库，基于ZXing3.3.0封装，去除多余代码，只保留扫描功能及相关
 
+还未托管到jCenter，得指定仓库
+```Java
+repositories {
+    maven {
+        'https://dl.bintray.com/kelvinsail/maven/'
+    }
+}
+ 
+...
+ 
+dependencies {
+    compile 'cn.yifan.scanner:scanner:1.0.0'
+}
+```
+
+
+
 实现自定义界面及扫描框，自定义扫描框属性，可在布局中设置
 
 ```html
