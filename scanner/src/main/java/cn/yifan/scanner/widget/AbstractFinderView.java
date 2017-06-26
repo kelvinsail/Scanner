@@ -5,13 +5,16 @@ import android.content.res.Resources;
 import android.content.res.TypedArray;
 import android.graphics.Bitmap;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.graphics.RectF;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.util.TypedValue;
+import android.view.MotionEvent;
 import android.view.View;
 
 import com.google.zxing.ResultPoint;
@@ -91,6 +94,26 @@ public abstract class AbstractFinderView extends View implements Finder {
     private List<ResultPoint> mPossibleResultPoints;
     private List<ResultPoint> mLastPossibleResultPoints;
 
+    /**
+     * 手动输入提示文字
+     */
+    private String mInputText;
+
+    /**
+     * 手动输入提示文字大小
+     */
+    private int mInputTextSize;
+
+    /**
+     * 手动输入提示文字颜色
+     */
+    private int mInputTextColor;
+
+    /**
+     * 手动输入提示文字点击监听
+     */
+    private OnInputTextClickListener mOnInputClickListener;
+
     public AbstractFinderView(Context context) {
         this(context, null);
     }
@@ -115,13 +138,21 @@ public abstract class AbstractFinderView extends View implements Finder {
         TypedArray array = getContext().obtainStyledAttributes(attrs,
                 R.styleable.AbstractFinderView, defStyleAttr, R.style.FinderViewStyle);
         //提示文本
-        mTipsText = "这是提示文字,识别扫描";
+        mTipsText = array.getString(R.styleable.AbstractFinderView_tips_text);
         mTipsTextColor = array.getColor(
                 R.styleable.AbstractFinderView_tips_text_color, resources.getColor(R.color.tips_text));
         mTipsTextSize = array.getDimensionPixelSize(
                 R.styleable.AbstractFinderView_tips_text_size, resources.getDimensionPixelSize(R.dimen.tips_text_size));
         mTipsTextBottomPadding = array.getDimensionPixelSize(
                 R.styleable.AbstractFinderView_tips_text_bottom_padding, resources.getDimensionPixelSize(R.dimen.tips_text_bottom_padding));
+
+        //手动输入提示文字
+        mInputText = array.getString(R.styleable.AbstractFinderView_input_tips);
+        mInputTextColor = array.getColor(
+                R.styleable.AbstractFinderView_input_tips_color, resources.getColor(R.color.input_text));
+        mInputTextSize = array.getDimensionPixelSize(
+                R.styleable.AbstractFinderView_input_tips_size, resources.getDimensionPixelSize(R.dimen.input_text_size));
+
         //背景颜色
         mMaskColor = array.getColor(R.styleable.AbstractFinderView_mask_color,
                 resources.getColor(R.color.viewfinder_mask));
@@ -273,6 +304,23 @@ public abstract class AbstractFinderView extends View implements Finder {
                         frame.top - (mTipsTextBottomPadding + mTipsTextSize / 2), mPaint);
             }
 
+            //input text
+            if (!TextUtils.isEmpty(mInputText)) {
+                mPaint.setTextSize(mInputTextSize);
+                mPaint.setColor(mInputTextColor);
+                mPaint.setTextAlign(Paint.Align.CENTER);
+                int bottom = frame.bottom + (mTipsTextBottomPadding + mInputTextSize / 2);
+                canvas.drawText(mInputText, 0, mInputText.length(), frame.centerX(), bottom, mPaint);
+                if (null == mInputTextRect) {
+                    mInputTextRect = new RectF();
+                }
+                //设置文字绘制区域，用于判断点击
+                float textWidth = mPaint.measureText(mInputText) / 2;
+                float textHeight = mPaint.getFontMetrics().descent - mPaint.getFontMetrics().ascent;
+                mInputTextRect.set(frame.centerX() - textWidth, bottom - textHeight,
+                        frame.centerX() + textWidth, bottom);
+            }
+
             // Request another update at the animation interval, but only repaint the laser line,
             // not the entire viewfinder mask.
             postInvalidateDelayed(ANIMATION_DELAY,
@@ -283,18 +331,228 @@ public abstract class AbstractFinderView extends View implements Finder {
         }
     }
 
+    /**
+     * 手动输入提示文字绘制区域
+     */
+    RectF mInputTextRect;
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        switch (event.getAction()) {
+            case MotionEvent.ACTION_DOWN:
+                //如果点击了手动输入文字部分，返回true，表明处理该事件
+                if (isClickInput(event.getX(), event.getY())) {
+                    return true;
+                }
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //do nothing
+                break;
+            case MotionEvent.ACTION_UP:
+                if (TextUtils.isEmpty(mInputText)
+                        || null == mInputTextRect) {
+                    break;
+                }
+                if (isClickInput(event.getX(), event.getY())) {
+                    if (null != mOnInputClickListener) {
+                        mOnInputClickListener.onclick();
+                    }
+                }
+                break;
+        }
+        return super.onTouchEvent(event);
+    }
+
+    /**
+     * 判断是否点击了手动输入文字
+     *
+     * @param x x轴坐标点
+     * @param y y轴坐标点
+     * @return
+     */
+    private boolean isClickInput(float x, float y) {
+        if (null == mInputTextRect) {
+            return false;
+        }
+        return x < mInputTextRect.right
+                && x > mInputTextRect.left
+                && y < mInputTextRect.bottom
+                && y > mInputTextRect.top;
+    }
+
+    /**
+     * 设置背景颜色
+     *
+     * @param maskColor
+     */
     public void setMaskColor(int maskColor) {
         this.mMaskColor = maskColor;
         invalidate();
     }
 
+    /**
+     * 设置扫码结果颜色
+     *
+     * @param resultColor
+     */
     public void setResultColor(int resultColor) {
         this.mResultColor = resultColor;
         invalidate();
     }
 
+    /**
+     * 设置扫码准线颜色
+     *
+     * @param laserColor
+     */
     public void setLaserColor(int laserColor) {
         this.mLaserColor = laserColor;
         invalidate();
+    }
+
+    /**
+     * 设置提示文本
+     *
+     * @param tipsText
+     */
+    public void setTipsText(String tipsText) {
+        this.mTipsText = tipsText;
+        invalidate();
+    }
+
+    /**
+     * 设置提示文本颜色
+     *
+     * @param tipsTextColor
+     */
+    public void setTipsTextColor(int tipsTextColor) {
+        this.mTipsTextColor = tipsTextColor;
+        invalidate();
+    }
+
+    /**
+     * 设置提示文本字体大小
+     *
+     * @param tipsTextSize
+     */
+    public void setTipsTextSize(int tipsTextSize) {
+        this.mTipsTextSize = tipsTextSize;
+        invalidate();
+    }
+
+    /**
+     * 设置提示文本与扫码框之间的间距
+     *
+     * @param tipsTextBottomPadding
+     */
+    public void setTipsTextBottomPadding(int tipsTextBottomPadding) {
+        this.mTipsTextBottomPadding = tipsTextBottomPadding;
+        invalidate();
+    }
+
+    /**
+     * 设置扫码框边角颜色
+     *
+     * @param cornerFrameColor
+     */
+    public void setCornerFrameColor(int cornerFrameColor) {
+        this.mCornerFrameColor = cornerFrameColor;
+        invalidate();
+    }
+
+    /**
+     * 设置扫码框边角宽度
+     *
+     * @param cornerFrameWidth
+     */
+    public void setCornerFrameWidth(int cornerFrameWidth) {
+        this.mCornerFrameWidth = cornerFrameWidth;
+        invalidate();
+    }
+
+    /**
+     * 设置扫码框边角长度
+     *
+     * @param cornerFrameHeight
+     */
+    public void setCornerFrameHeight(int cornerFrameHeight) {
+        this.mCornerFrameHeight = cornerFrameHeight;
+        invalidate();
+    }
+
+    /**
+     * 准线线条宽度
+     *
+     * @param laserWidth
+     */
+    public void setLaserWidth(int laserWidth) {
+        this.mLaserWidth = laserWidth;
+        invalidate();
+    }
+
+    /**
+     * 准线与两边扫码框之间的间距
+     *
+     * @param laserPadding
+     */
+    public void setLaserPadding(int laserPadding) {
+        this.mLaserPadding = laserPadding;
+        invalidate();
+    }
+
+    /**
+     * 扫码提示点颜色
+     *
+     * @param resultPointColor
+     */
+    public void setResultPointColor(int resultPointColor) {
+        this.mResultPointColor = resultPointColor;
+        invalidate();
+    }
+
+    /**
+     * 准线变化透明度
+     *
+     * @param scannerAlpha
+     */
+    public void setScannerAlpha(int scannerAlpha) {
+        this.mScannerAlpha = scannerAlpha;
+        invalidate();
+    }
+
+    /**
+     * 设置手动输入提示文字
+     *
+     * @param inputText
+     */
+    public void setInputText(String inputText) {
+        this.mInputText = inputText;
+        invalidate();
+    }
+
+    /**
+     * 设置手动输入提示文字的大小
+     *
+     * @param size
+     */
+    public void setInputTextSize(int size) {
+        this.mInputTextSize = size;
+        invalidate();
+    }
+
+    /**
+     * 设置手动输入提示文字点击事件监听
+     *
+     * @param listener
+     */
+    public void setOnInputTextClickListener(OnInputTextClickListener listener) {
+        this.mOnInputClickListener = listener;
+    }
+
+    /**
+     * 手动输入提示文字点击事件监听
+     */
+    public interface OnInputTextClickListener {
+        void onclick();
     }
 }

@@ -5,6 +5,8 @@
         <item name="tips_text_color">@color/tips_text</item>
         <item name="tips_text_size">@dimen/tips_text_size</item>
         <item name="tips_text_bottom_padding">@dimen/tips_text_bottom_padding</item>
+        <item name="input_tips_size">@dimen/tips_text_size</item>
+        <item name="input_tips_color">@color/input_text</item>
         <item name="corner_frame_width">4dp</item>
         <item name="corner_frame_height">24dp</item>
         <item name="laser_color">@color/viewfinder_laser</item>

@@ -9,10 +9,12 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Toast;
 
 import com.google.zxing.Result;
 
 import cn.yifan.scanner.impl.Capture;
+import cn.yifan.scanner.widget.AbstractFinderView;
 import cn.yifan.scanner.widget.ViewfinderView;
 
 /**
@@ -46,14 +48,23 @@ public class CaptureTestActivity extends AppCompatActivity implements SurfaceHol
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //初始化控件对象
-        mTitleBar = (Toolbar) findViewById(R.id.titlebar);
-        mSurfaceView = (SurfaceView) findViewById(R.id.sv_capture);
-        mViewfinderView = (ViewfinderView) findViewById(R.id.vfv_capture);
-        setSupportActionBar(mTitleBar);
+    mTitleBar = (Toolbar) findViewById(R.id.titlebar);
+    mSurfaceView = (SurfaceView) findViewById(R.id.sv_capture);
+    mViewfinderView = (ViewfinderView) findViewById(R.id.vfv_capture);
+    setSupportActionBar(mTitleBar);
 
-        mCapture = new Capture(this, mSurfaceView, mViewfinderView);
+        mViewfinderView.setTipsText("扫码快递件Label条码");
+        mViewfinderView.setInputText("手动输入");
+
+    mCapture = new Capture(this, mSurfaceView, mViewfinderView);
         mCapture.setOnScannerListener(mListener);
-    }
+        mViewfinderView.setOnInputTextClickListener(new AbstractFinderView.OnInputTextClickListener() {
+        @Override
+        public void onclick() {
+            Toast.makeText(CaptureTestActivity.this, "is click to make input", Toast.LENGTH_SHORT).show();
+        }
+    });
+}
 
     @Override
     protected void onResume() {
