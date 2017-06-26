@@ -2,10 +2,10 @@
 
 一个简单的二维码／条形码扫描库，基于ZXing3.3.0封装，去除多余代码，只保留扫描功能及相关
 
-1.添加Gradle依赖[ ![Download](https://api.bintray.com/packages/kelvinsail/maven/scanner/images/download.svg?version=1.0.1) ](https://bintray.com/kelvinsail/maven/scanner/1.0.1/link)
+1.添加Gradle依赖[ ![Download](https://api.bintray.com/packages/kelvinsail/maven/scanner/images/download.svg?version=1.0.1) ](https://bintray.com/kelvinsail/maven/scanner/1.0.2/link)
 ```Java
 dependencies {
-    compile 'cn.yifan.scanner:scanner:1.0.1'
+    compile 'cn.yifan.scanner:scanner:1.0.2'
 }
 ```
 
@@ -21,17 +21,23 @@ dependencies {
         <attr name="tips_text_color" format="color"/>
         <attr name="tips_text_size" format="dimension"/>
         <attr name="tips_text_bottom_padding" format="dimension"/>
+
+        <!-- 手动输入提示文字 -->
+        <attr name="input_tips" format="string"/>
+        <attr name="input_tips_size" format="dimension"/>
+        <attr name="input_tips_color" format="color"/>
+
         <!-- 边框颜色 -->
         <attr name="corner_frame_color" format="color"/>
         <attr name="corner_frame_width" format="dimension"/>
         <attr name="corner_frame_height" format="dimension"/>
+
         <!-- 准线颜色 -->
         <attr name="laser_color" format="color"/>
         <attr name="laser_width" format="dimension"/>
         <attr name="laser_padding" format="dimension"/>
-        <!-- 背景遮罩层 -->
+
         <attr name="mask_color" format="color"/>
-        <!-- 目标点及结果 -->
         <attr name="result_color" format="color"/>
         <attr name="result_point_color" format="color"/>
         <attr name="scanner_alpha" format="float"/>
@@ -46,7 +52,7 @@ dependencies {
  */
 public class CaptureTestActivity extends AppCompatActivity implements SurfaceHolder.Callback {
 
-    private static final String TAG = CaptureTestActivity.class.getSimpleName();
+     private static final String TAG = CaptureTestActivity.class.getSimpleName();
     /**
      * 导航栏
      */
@@ -72,14 +78,23 @@ public class CaptureTestActivity extends AppCompatActivity implements SurfaceHol
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //初始化控件对象
-        mTitleBar = (Toolbar) findViewById(R.id.titlebar);
-        mSurfaceView = (SurfaceView) findViewById(R.id.sv_capture);
-        mViewfinderView = (ViewfinderView) findViewById(R.id.vfv_capture);
-        setSupportActionBar(mTitleBar);
+    mTitleBar = (Toolbar) findViewById(R.id.titlebar);
+    mSurfaceView = (SurfaceView) findViewById(R.id.sv_capture);
+    mViewfinderView = (ViewfinderView) findViewById(R.id.vfv_capture);
+    setSupportActionBar(mTitleBar);
 
-        mCapture = new Capture(this, mSurfaceView, mViewfinderView);
+        mViewfinderView.setTipsText("扫码快递件Label条码");
+        mViewfinderView.setInputText("手动输入");
+
+    mCapture = new Capture(this, mSurfaceView, mViewfinderView);
         mCapture.setOnScannerListener(mListener);
-    }
+        mViewfinderView.setOnInputTextClickListener(new AbstractFinderView.OnInputTextClickListener() {
+        @Override
+        public void onclick() {
+            Toast.makeText(CaptureTestActivity.this, "is click to make input", Toast.LENGTH_SHORT).show();
+        }
+    });
+}
 
     @Override
     protected void onResume() {
