@@ -2,7 +2,7 @@
 
 一个简单的二维码／条形码扫描库，基于ZXing3.3.0封装，去除多余代码，只保留扫描功能及相关
 
-1.添加Gradle依赖[ ![Download](https://api.bintray.com/packages/kelvinsail/maven/scanner/images/download.svg?version=1.0.1) ](https://bintray.com/kelvinsail/maven/scanner/1.0.2/link)
+1.添加Gradle依赖[ ![Download](https://api.bintray.com/packages/kelvinsail/maven/scanner/images/download.svg?version=1.0.2) ](https://bintray.com/kelvinsail/maven/scanner/1.0.2/link)
 ```Java
 dependencies {
     compile 'cn.yifan.scanner:scanner:1.0.2'
