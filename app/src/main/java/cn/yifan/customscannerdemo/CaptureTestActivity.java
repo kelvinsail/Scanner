@@ -48,23 +48,23 @@ public class CaptureTestActivity extends AppCompatActivity implements SurfaceHol
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         //初始化控件对象
-    mTitleBar = (Toolbar) findViewById(R.id.titlebar);
-    mSurfaceView = (SurfaceView) findViewById(R.id.sv_capture);
-    mViewfinderView = (ViewfinderView) findViewById(R.id.vfv_capture);
-    setSupportActionBar(mTitleBar);
+        mTitleBar = (Toolbar) findViewById(R.id.titlebar);
+        mSurfaceView = (SurfaceView) findViewById(R.id.sv_capture);
+        mViewfinderView = (ViewfinderView) findViewById(R.id.vfv_capture);
+        setSupportActionBar(mTitleBar);
 
         mViewfinderView.setTipsText("扫码快递件Label条码");
         mViewfinderView.setInputText("手动输入");
 
-    mCapture = new Capture(this, mSurfaceView, mViewfinderView);
+        mCapture = new Capture(this, mSurfaceView, mViewfinderView);
         mCapture.setOnScannerListener(mListener);
         mViewfinderView.setOnInputTextClickListener(new AbstractFinderView.OnInputTextClickListener() {
-        @Override
-        public void onclick() {
-            Toast.makeText(CaptureTestActivity.this, "is click to make input", Toast.LENGTH_SHORT).show();
-        }
-    });
-}
+            @Override
+            public void onclick() {
+                Toast.makeText(CaptureTestActivity.this, "is click to make input", Toast.LENGTH_SHORT).show();
+            }
+        });
+    }
 
     @Override
     protected void onResume() {

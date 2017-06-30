@@ -37,7 +37,6 @@ public class Capture implements CaptureActivity {
 
     private static final String TAG = Capture.class.getSimpleName();
 
-
     /**
      * 预览控件
      */
@@ -205,6 +204,10 @@ public class Capture implements CaptureActivity {
      */
     public void destory() {
         mInactivityTimer.shutdown();
+        if (null != mHandler) {
+            mHandler.removeCallbacksAndMessages(null);
+            mHandler = null;
+        }
     }
 
     @Override
