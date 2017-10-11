@@ -49,6 +49,10 @@ public abstract class AbstractFinderView extends View implements Finder {
     private int mTipsTextSize;
     private int mTipsTextBottomPadding;
 
+    /**
+     * 扩大的提示文本的点击区域
+     */
+    private int mTipsClickPadding;
 
     /**
      * 摄像头管理工具
@@ -177,6 +181,8 @@ public abstract class AbstractFinderView extends View implements Finder {
 
         mPossibleResultPoints = new ArrayList<>(5);
         mLastPossibleResultPoints = null;
+
+        mTipsClickPadding = getResources().getDimensionPixelSize(R.dimen.tips_text_click_padding);
     }
 
     @Override
@@ -317,8 +323,8 @@ public abstract class AbstractFinderView extends View implements Finder {
                 //设置文字绘制区域，用于判断点击
                 float textWidth = mPaint.measureText(mInputText) / 2;
                 float textHeight = mPaint.getFontMetrics().descent - mPaint.getFontMetrics().ascent;
-                mInputTextRect.set(frame.centerX() - textWidth, bottom - textHeight,
-                        frame.centerX() + textWidth, bottom);
+                mInputTextRect.set(frame.centerX() - textWidth - mTipsClickPadding, bottom - textHeight - mTipsClickPadding,
+                        frame.centerX() + textWidth + mTipsClickPadding, bottom + mTipsClickPadding);
             }
 
             // Request another update at the animation interval, but only repaint the laser line,

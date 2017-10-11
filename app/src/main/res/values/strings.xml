@@ -1,3 +1,7 @@
 <resources>
     <string name="app_name">CustomScannerDemo</string>
+
+    <string name="open_flash_light">开启手电筒</string>
+    <string name="close_flash_light">关闭手电筒</string>
+
 </resources>

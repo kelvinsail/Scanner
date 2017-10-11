@@ -3,10 +3,14 @@ package cn.yifan.customscannerdemo;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Bitmap;
+import android.hardware.Camera;
 import android.os.Bundle;
+import android.support.annotation.IdRes;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import android.widget.Toast;
@@ -43,6 +47,16 @@ public class CaptureTestActivity extends AppCompatActivity implements SurfaceHol
      */
     private Capture mCapture;
 
+    /**
+     * 手电筒是否已开启
+     */
+    private boolean isFlashOpen;
+
+    /**
+     * 菜单对象
+     */
+    private Menu mMenu;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -75,6 +89,7 @@ public class CaptureTestActivity extends AppCompatActivity implements SurfaceHol
     @Override
     protected void onPause() {
         mCapture.pause(this);
+        refreshFlashStatus(false);
         super.onPause();
     }
 
@@ -133,4 +148,55 @@ public class CaptureTestActivity extends AppCompatActivity implements SurfaceHol
             dialog.show();
         }
     };
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        //初始化菜单
+        getMenuInflater().inflate(R.menu.menu_scanner_activity, menu);
+        mMenu = menu;
+        //刷新导航栏菜单 手电筒按钮状态
+        refreshFlashStatus(false);
+        return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.action_close_flash_light:
+                refreshFlashStatus(false);
+                mCapture.closeFlashLight();
+                return true;
+            case R.id.action_open_flash_light:
+                refreshFlashStatus(true);
+                mCapture.openFlashLight();
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * 刷新导航栏菜单 手电筒按钮状态
+     */
+    private void refreshFlashStatus(boolean isFlashOpen) {
+        this.isFlashOpen = isFlashOpen;
+        setMenuItemVisible(mMenu, R.id.action_close_flash_light, isFlashOpen);
+        setMenuItemVisible(mMenu, R.id.action_open_flash_light, !isFlashOpen);
+    }
+
+    /**
+     * 隐藏或展示菜单项
+     *
+     * @param menu
+     * @param menuID
+     * @param isHide
+     */
+    private void setMenuItemVisible(Menu menu, @IdRes int menuID, boolean isHide) {
+        if (null != menu && menuID > 0) {
+            MenuItem menuItem = menu.findItem(menuID);
+            if (null != menuItem) {
+                menuItem.setVisible(isHide);
+            }
+        }
+    }
+
 }

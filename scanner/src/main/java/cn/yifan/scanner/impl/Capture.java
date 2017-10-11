@@ -6,6 +6,8 @@ import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.graphics.Bitmap;
+import android.graphics.ImageFormat;
+import android.hardware.Camera;
 import android.os.Handler;
 import android.os.Message;
 import android.preference.PreferenceManager;
@@ -33,7 +35,6 @@ import cn.yifan.scanner.widget.ViewfinderView;
  */
 
 public class Capture implements CaptureActivity {
-
 
     private static final String TAG = Capture.class.getSimpleName();
 
@@ -86,6 +87,11 @@ public class Capture implements CaptureActivity {
      * 扫描监听器
      */
     private OnScannerListener mOnScannerListener;
+
+    /**
+     * 手电筒是否开启
+     */
+    private boolean isFlashOpen;
 
     public Capture.OnScannerListener getOnScannerListener() {
         return mOnScannerListener;
@@ -140,6 +146,7 @@ public class Capture implements CaptureActivity {
             initCamera(holder);
         } else {
             holder.addCallback(callback);
+            mCameraManager.startPreview();
         }
     }
 
@@ -151,6 +158,14 @@ public class Capture implements CaptureActivity {
      * @param callback {@link SurfaceHolder.Callback}
      */
     public void pause(SurfaceHolder.Callback callback) {
+        if (isFlashOpen) {
+            closeFlashLight();
+        }
+        if (null != mOrientationDetector) {
+            //add by tancolo
+            mOrientationDetector.disable();
+            //end add
+        }
         if (mHandler != null) {
             mHandler.quitSynchronously();
             mHandler = null;
@@ -159,9 +174,6 @@ public class Capture implements CaptureActivity {
         if (null != mCameraManager) {
             mCameraManager.closeDriver();
             mCameraManager = null;
-        }
-        if (hasSurface && null != mSurfaceView) {
-            mSurfaceView.getHolder().removeCallback(callback);
         }
     }
 
@@ -174,7 +186,6 @@ public class Capture implements CaptureActivity {
         if (null != mSurfaceView) {
             mSurfaceView.getHolder().removeCallback(callback);
         }
-        hasSurface = false;
     }
 
     /**
@@ -204,10 +215,6 @@ public class Capture implements CaptureActivity {
      */
     public void destory() {
         mInactivityTimer.shutdown();
-        if (null != mHandler) {
-            mHandler.removeCallbacksAndMessages(null);
-            mHandler = null;
-        }
     }
 
     @Override
@@ -280,7 +287,7 @@ public class Capture implements CaptureActivity {
 
     @Override
     public void handleDecode(Result rawResult, Bitmap barcode, float scaleFactor) {
-        Log.i(TAG, "handleDecode: " + rawResult.getText());
+        Log.i(TAG, "handleDecode: " + (null != rawResult ? rawResult.getText() : "null"));
         mInactivityTimer.onActivity();
         if (null != mOnScannerListener) {
             mOnScannerListener.onDecode(rawResult, barcode, scaleFactor);
@@ -368,6 +375,11 @@ public class Capture implements CaptureActivity {
             }
             if ((orientation == 90 && lastOrientation == 270) || (orientation == 270 && lastOrientation == 90)) {
                 Log.i(TAG, "orientation:" + orientation + "lastOrientation:" + lastOrientation);
+                try {
+                    mCameraManager.resetCameraSize(orientation, mSurfaceView.getHolder());
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
                 Intent intent = getActivity().getIntent();
                 destory();
                 startActivity(intent);
@@ -400,5 +412,48 @@ public class Capture implements CaptureActivity {
          * @param scaleFactor
          */
         void onDecode(Result rawResult, Bitmap barcode, float scaleFactor);
+    }
+
+    /**
+     * 开启手电筒
+     */
+    public void closeFlashLight() {
+        Camera mCamera = getCameraManager().getCamera().getCamera();
+        if (null != mCamera) {
+            Camera.Parameters mParameters = mCamera.getParameters();
+            if (null == mParameters) {
+                mParameters = mCamera.getParameters();
+            }
+            mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_OFF);
+            mCamera.setParameters(mParameters);
+            isFlashOpen = true;
+        }
+    }
+
+    /**
+     * 关闭手电筒
+     */
+    public void openFlashLight() {
+        Camera mCamera = getCameraManager().getCamera().getCamera();
+        if (null != mCamera) {
+            Camera.Parameters mParameters = mCamera.getParameters();
+            if (null == mParameters) {
+                mParameters = mCamera.getParameters();
+            }
+            mParameters.setFlashMode(Camera.Parameters.FLASH_MODE_TORCH);
+            if (null != mCamera) {
+                mCamera.setParameters(mParameters);
+            }
+            isFlashOpen = false;
+        }
+    }
+
+    /**
+     * 手电筒是否开启
+     *
+     * @return
+     */
+    public boolean isFlashOpen() {
+        return isFlashOpen;
     }
 }

@@ -81,12 +81,27 @@ public final class CameraManager {
                 requestedFramingRectHeight = 0;
             }
         }
+        resetCameraSize(90, holder);
+    }
 
-        Camera cameraObject = theCamera.getCamera();
+    public synchronized void resetCameraSize(int orientation, SurfaceHolder holder) throws IOException {
+        if (null == camera || null == holder) {
+            return;
+        }
+        Camera cameraObject = camera.getCamera();
         Camera.Parameters parameters = cameraObject.getParameters();
+//        int width = holder.getSurfaceFrame().width();
+//        int height = holder.getSurfaceFrame().height();
+//        if (orientation % 180 == 0) {
+//            parameters.setPreviewSize(width, height);
+//        } else {
+//            parameters.setPreviewSize(height, width);
+//        }
         String parametersFlattened = parameters == null ? null : parameters.flatten(); // Save these, temporarily
         try {
-            configManager.setDesiredCameraParameters(theCamera, false);
+//            cameraObject.setDisplayOrientation(orientation);
+//            cameraObject.setParameters(parameters);
+            configManager.setDesiredCameraParameters(camera, false);
         } catch (RuntimeException re) {
             // Driver failed
             Log.w(TAG, "Camera rejected parameters. Setting only minimal safe-mode parameters");
@@ -97,7 +112,7 @@ public final class CameraManager {
                 parameters.unflatten(parametersFlattened);
                 try {
                     cameraObject.setParameters(parameters);
-                    configManager.setDesiredCameraParameters(theCamera, true);
+                    configManager.setDesiredCameraParameters(camera, true);
                 } catch (RuntimeException re2) {
                     // Well, darn. Give up
                     Log.w(TAG, "Camera rejected even safe-mode parameters! No configuration");
@@ -328,6 +343,15 @@ public final class CameraManager {
         // Go ahead and assume it's YUV rather than die.
         return new PlanarYUVLuminanceSource(data, width, height, rect.left, rect.top,
                 rect.width(), rect.height(), false);
+    }
+
+    /**
+     * 获取相机实例
+     *
+     * @return
+     */
+    public OpenCamera getCamera() {
+        return camera;
     }
 
 }

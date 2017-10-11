@@ -86,11 +86,8 @@ final class DecodeHandler extends Handler {
             }
             data = rotatedData;
         }
-
-        if (null == activity) {
-            return;
-        }
-        if (null == activity.getCameraManager()) {
+        if (null == data
+                || null == activity.getCameraManager()) {
             return;
         }
         PlanarYUVLuminanceSource source = activity.getCameraManager().buildLuminanceSource(data, width, height);
@@ -99,6 +96,7 @@ final class DecodeHandler extends Handler {
             try {
                 rawResult = multiFormatReader.decodeWithState(bitmap);
             } catch (ReaderException re) {
+                re.printStackTrace();
                 // continue
             } finally {
                 multiFormatReader.reset();
